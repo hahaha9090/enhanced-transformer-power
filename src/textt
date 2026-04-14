@@ -1,0 +1,10 @@
+import torch
+print("PyTorch版本：", torch.__version__)
+print("CUDA是否可用：", torch.cuda.is_available())
+print("GPU数量：", torch.cuda.device_count())
+# 若有GPU，打印型号；无则输出None
+print("GPU型号：", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "None")
+import torch
+print("PyTorch版本：", torch.__version__)
+print("CUDA是否可用：", torch.cuda.is_available())
+# 若输出True，说明安装成功；仍为False则说明显卡不支持CUDA/驱动未装
