@@ -36,3 +36,17 @@
 .vscode/
 __pycache__/
 /visualizations/
+.idea/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+*.egg-info/
+*.pyc
+*.pyo
+*.pyd
+*.tmp
+*.bak
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,35 @@
+[project]
+name = "enhanced-transformer-power"
+version = "0.1.0"
+description = "基于电力价格预测 Transformer 基线代码的增强研究仓库。"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+    { name = "hahaha9090" }
+]
+dependencies = [
+    "torch==1.13.1",
+    "transformers==4.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.6.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
