@@ -11,6 +11,7 @@ import pandas as pd
 
 
 def plot_kupiec(hourly_LR_UC, critical_chi_square, max_LR_UC, title, horiz=24, plot_col=1):
+    # hourly_LR_UC 是“模型 -> 24 个小时 LR_UC 统计量”的字典。
     plot_row = len(hourly_LR_UC) // plot_col
     x = np.arange(horiz)
     ks = list(hourly_LR_UC.keys())
@@ -21,6 +22,7 @@ def plot_kupiec(hourly_LR_UC, critical_chi_square, max_LR_UC, title, horiz=24, p
     plt.subplots_adjust(hspace=0.01)
     #plt.title(title)
     for k, ax in zip(ks, axs.ravel()):
+        # 每个子图画一个模型的 24 小时 Kupiec LR_UC，红线是卡方临界值。
         ax.plot(x, hourly_LR_UC[k], '^', color='navy')
         ax.set_ylim(bottom=-2, top=max_LR_UC + 2)
         #ax.set_title(k, fontsize=10)
@@ -33,6 +35,7 @@ def plot_kupiec(hourly_LR_UC, critical_chi_square, max_LR_UC, title, horiz=24, p
 
 
 def plot_quantiles(results: pd.DataFrame, target: str):
+    # results 同时包含真实目标列和多个预测分位数列；蓝线是分位数，红线是真实值。
     title = target
     idx = results[target].index
     fig1, ax1 = plt.subplots()

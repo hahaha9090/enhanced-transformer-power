@@ -19,6 +19,7 @@ from tools.prediction_quantiles_tools import (build_alpha_quantiles_map,
 
 
 models_names_short = {'CP-DNN': 'CP',
+                     # 统一缩写模型名，便于画图和表格列名更紧凑。
                      'QRA-DNN': 'QRA',
                      'N-DNN': 'Norm',
                      'JSU-DNN': 'Jsu',
@@ -36,6 +37,7 @@ models_names_short = {'CP-DNN': 'CP',
 
 
 def winkler_score(y_true, pred_PI_l, pred_PI_u, alpha):
+    # Winkler 分数同时惩罚区间宽度和未覆盖样本；分数越小表示区间越窄且覆盖越可靠。
     score = []
     delta = pred_PI_u - pred_PI_l
     for t in range(y_true.shape[0]):
@@ -50,6 +52,7 @@ def winkler_score(y_true, pred_PI_l, pred_PI_u, alpha):
 
 
 def pinball_score(labels, pred_quantiles, quantiles):
+    # Pinball loss 是分位数预测的标准损失；这里对所有目标分位数求平均。
     loss = []
     for i, q in enumerate(quantiles):
         error = np.subtract(labels, pred_quantiles[:, :, i])
@@ -67,21 +70,25 @@ class ExperAnalysis():
                  kupiec_significance_level=0.05, kupiec_max_LR_UC=20
                  ):
         # load results
+        # 读取 exec_qra_cp.py 保存的聚合 pickle，里面包含所有方法的结果 DataFrame 和实验元信息。
         path = os.path.join(os.getcwd(), 'experiments', 'tasks', PF_task)
         with open(path + '/' + run_id + '_aggr_results.p', 'rb') as fp:
             exper_results = pickle.load(fp)
 
         # Store configs
+        # target_alpha 是失覆盖率列表；pred_horiz 通常为 24，表示日前电价 24 小时预测。
         self.target_name = PF_task
         self.pred_horiz = exper_results['pred_horiz']
         self.target_alpha= exper_results['target_alpha']
 
+        # 构造分位数列表和 alpha 到上下界列索引的映射，后续所有指标都依赖这个映射。
         self.target_quantiles = build_target_quantiles(self.target_alpha)
         self.alpha_q_map = build_alpha_quantiles_map(target_alpha=self.target_alpha,
                                                      target_quantiles=self.target_quantiles)
         self.kupiec_significance_level=kupiec_significance_level
         self.kupiec_max_LR_UC = kupiec_max_LR_UC
         self.experiments=exper_results['results']
+        # 把完整模型名替换为短名，图和表更易读。
         self.experiments = {models_names_short.get(k, k): v for k, v in self.experiments.items()}
         self.exper_names = list(self.experiments.keys())
 
@@ -100,6 +107,7 @@ class ExperAnalysis():
 
     def compute_kpis(self, experiments):
         # Initialize dicts
+        # 每个 alpha 都单独保存覆盖率、Kupiec 统计量和 Winkler 分数。
         for alpha in self.target_alpha:
             self.kupiec_tests[alpha] = {}
             self.passed_kupiec_tests[alpha] = {}
@@ -109,9 +117,11 @@ class ExperAnalysis():
 
         # Perform results analysis for each model configuration m_k
         for m_k, m_pred in experiments.items():
+            # m_pred 的列结构是：若干预测分位数列 + 真实目标列。
             preds = m_pred.loc[:, m_pred.columns != self.target_name].to_numpy()
             self.y_true = m_pred[self.target_name]
             labels = m_pred[self.target_name].to_numpy()
+            # 拉回 [天/样本, 24小时, 分位数数]，便于按小时计算覆盖率和统计检验。
             preds_h = preds.reshape(-1, self.pred_horiz, preds.shape[1])
             labels_h = labels.reshape(-1, self.pred_horiz)
             for alpha in self.target_alpha:
@@ -122,6 +132,7 @@ class ExperAnalysis():
                 uq_idx = self.alpha_q_map[alpha]['u']
                 for hour in range(self.pred_horiz):
                     # Compute PI violation
+                    # PI_hits=True 表示真实价格落在当前 alpha 对应预测区间内。
                     PI_hits = np.logical_and(preds_h[:, hour, lq_idx] <= labels_h[:, hour],
                                              labels_h[:, hour] <= preds_h[:, hour, uq_idx])
                     # Compute kupiec test for each alpha
@@ -148,6 +159,7 @@ class ExperAnalysis():
             self.mae[m_k] = np.abs(labels - preds[:, self.alpha_q_map['med']])
 
         # Convert PICP, pinball and winkler scores to dataframes for later usage
+        # DataFrame 形式方便后续求均值、画图、做 DM 检验。
         self.pinball_df = pd.DataFrame.from_dict(self.pinball)
         self.mae_df = pd.DataFrame.from_dict(self.mae)
         self.winkler_df = {}
@@ -157,9 +169,11 @@ class ExperAnalysis():
 
     @staticmethod
     def alpha_rename(name, alpha):
+        # 生成带 alpha 下标的行名，例如 PICP$_{0.2}$。
         return name + '$_{' + str(alpha) + '}$'
 
     def compute_mean_kpis(self):
+        # 汇总每个模型的均值指标，作为论文主表或附表的基础。
         KPIs = {}
         for m_k in self.exper_names:
             kpis_m = {}
@@ -180,6 +194,7 @@ class ExperAnalysis():
 
     def __format_latex__(self):
         # format data to save latex table
+        # 先把数值转成固定小数位字符串，保证 LaTeX/Markdown 表格展示一致。
         self.mean_KPIs.loc['Pinball'] = self.mean_KPIs.loc['Pinball'].map('{:,.3f}'.format)
         self.mean_KPIs.loc['MAE'] = self.mean_KPIs.loc['MAE'].map('{:,.3f}'.format)
         for alpha in self.target_alpha:
@@ -200,12 +215,14 @@ class ExperAnalysis():
         return self.mean_KPIs.to_markdown()
 
     def plot_kupiec(self):
+        # 对每个 alpha 画一组 24 小时 Kupiec LR_UC，红线为卡方临界值。
         for alpha in self.target_alpha:
             pl.plot_kupiec(hourly_LR_UC=self.hourly_LR_UC[alpha],
                            critical_chi_square=stt.get_critical_chi_square(self.kupiec_significance_level),
                            max_LR_UC=self.kupiec_max_LR_UC, title='α='+str(alpha))
 
     def plot_stepwise_PICP(self, conf_to_plot):
+        # 输入可以使用完整模型名，这里先转换成初始化阶段使用的短名。
         conf_to_plot =[models_names_short[k] for k in conf_to_plot]
 
         formatter = FormatStrFormatter("%.2f")
@@ -214,6 +231,7 @@ class ExperAnalysis():
         for alpha in self.target_alpha:
             fig_picp = self.PICP[alpha][conf_to_plot].plot(ax=axes[i])
             fig_picp.grid()
+            # 红色虚线表示理论目标覆盖率 1-alpha，用来直观看模型是否欠覆盖/过覆盖。
             x_values = [0, 23]
             y_values = [1 - alpha, 1 - alpha]
             axes[i].plot(x_values, y_values, linestyle="--", color='red')
@@ -228,19 +246,23 @@ class ExperAnalysis():
 
 
     def plot_DM_test_pinball(self):
+        # DM 检验比较不同模型的 pinball loss 是否存在统计显著差异。
         stt.plot_multivariate_DM_test(real_price=self.y_true, forecasts_losses=self.pinball_df,
                                       title='Pinball')
 
     def plot_DM_test_mae(self):
+        # 使用 MAE 作为损失序列做同样的模型两两比较。
         stt.plot_multivariate_DM_test(real_price=self.y_true, forecasts_losses=self.mae_df,
                                       title='MAE')
 
     def plot_DM_test_winkler(self):
+        # Winkler 分数依赖 alpha，因此每个预测区间置信水平单独做 DM 检验。
         for alpha in self.target_alpha:
             stt.plot_multivariate_DM_test(real_price=self.y_true, forecasts_losses=self.winkler_df[alpha],
                                           title='Winkler - α=' + str(alpha))
 
     def plot_experiment_predictions(self, exper_name, target):
+        # 画指定模型的分位数预测曲线，用于肉眼检查区间宽度和真实值覆盖情况。
         pl.plot_quantiles(self.experiments[exper_name], target)
 
 
