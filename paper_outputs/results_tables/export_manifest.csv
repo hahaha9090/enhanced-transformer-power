@@ -1,0 +1,8 @@
+﻿market,models,alphas,horizon,mean_kpis_file
+DE_price,"CP, QRA, Norm, Jsu, Stu, QR, CQN, CQJ, CQS, CQR, OCQN, OCQJ, OCQS, OCQR","0.2, 0.4, 0.6, 0.8",24,per_market\DE_price_mean_kpis.csv
+MGP_CNOR,"CP, QRA, Norm, Jsu, Stu, QR, CQN, CQJ, CQS, CQR, OCQN, OCQJ, OCQS, OCQR","0.2, 0.4, 0.6, 0.8",24,per_market\MGP_CNOR_mean_kpis.csv
+MGP_CSUD,"CP, QRA, Norm, Jsu, Stu, QR, CQN, CQJ, CQS, CQR, OCQN, OCQJ, OCQS, OCQR","0.2, 0.4, 0.6, 0.8",24,per_market\MGP_CSUD_mean_kpis.csv
+MGP_NORD,"CP, QRA, Norm, Jsu, Stu, QR, CQN, CQJ, CQS, CQR, OCQN, OCQJ, OCQS, OCQR","0.2, 0.4, 0.6, 0.8",24,per_market\MGP_NORD_mean_kpis.csv
+MGP_SARD,"CP, QRA, Norm, Jsu, Stu, QR, CQN, CQJ, CQS, CQR, OCQN, OCQJ, OCQS, OCQR","0.2, 0.4, 0.6, 0.8",24,per_market\MGP_SARD_mean_kpis.csv
+MGP_SICI,"CP, QRA, Norm, Jsu, Stu, QR, CQN, CQJ, CQS, CQR, OCQN, OCQJ, OCQS, OCQR","0.2, 0.4, 0.6, 0.8",24,per_market\MGP_SICI_mean_kpis.csv
+MGP_SUD,"CP, QRA, Norm, Jsu, Stu, QR, CQN, CQJ, CQS, CQR, OCQN, OCQJ, OCQS, OCQR","0.2, 0.4, 0.6, 0.8",24,per_market\MGP_SUD_mean_kpis.csv

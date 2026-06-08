@@ -6,6 +6,7 @@ Definition of the keys employed by the data management utils
 # License: Apache-2.0 license
 
 import os
+# 数据集中通用列名的集中定义，避免其他模块硬编码 Date/Hour/IDX 字段。
 columns_keys = {
     'Date': 'Date',
     'Hour': 'Hour',
@@ -33,5 +34,5 @@ features_keys={
 
 
 def get_dataset_save_path():
+    # 所有数据集默认从当前项目目录的 data/datasets 读取。
     return os.path.join(os.getcwd(), 'data', 'datasets')
-

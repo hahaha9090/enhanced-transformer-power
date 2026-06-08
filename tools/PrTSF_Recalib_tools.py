@@ -33,6 +33,7 @@ class RecalibBlock:
     Class used to structure train/vali samples related to each recalibration block
     """
     def __init__(self, x_train, y_train, x_vali, y_vali):
+        # 一个 recalibration block 保存当前测试样本对应的训练集和验证集。
         self.x_train = x_train
         self.y_train = y_train
         self.x_vali = x_vali
@@ -44,11 +45,13 @@ class RecalibSamples:
     Class used to structure the recalibration samples, including the test sample and the related list of recalib blocks
     """
     def __init__(self, x_test, y_test):
+        # x_test/y_test 是当前滚动测试点；recalibBlocks 是可用于训练/验证的样本块列表。
         self.x_test = x_test
         self.y_test = y_test
         self.recalibBlocks = []
 
     def add_recal_block(self,x_train, y_train, x_vali, y_vali):
+        # 当前实现通常只添加一个训练/验证块，但用列表保留扩展多个块的能力。
         self.recalibBlocks.append(RecalibBlock(x_train=x_train, y_train=y_train,
                                                x_vali=x_vali, y_vali=y_vali))
 
@@ -65,6 +68,7 @@ class WindowGenerator:
                  target_columns: List = None):
 
         # Work out the label column indices.
+        # label_columns 是目标变量列；column_indices 记录原始特征列在窗口张量最后一维中的位置。
         self.label_columns = target_columns
         if target_columns is not None:
             self.label_columns_indices = {name: i for i, name in
@@ -82,6 +86,7 @@ class WindowGenerator:
         # create slice object
         # To include the future conditioning features, the input slide include the prediction steps
         # The target column MUST be removed during input conditioning construction
+        # 输入窗口包含历史滞后段和未来已知特征段；真正的标签只取最后 label_width 个小时。
         self.input_slice = slice(0, input_width + label_width)
         self.input_indices = np.arange(self.total_window_size)[self.input_slice]
 
@@ -97,9 +102,11 @@ class WindowGenerator:
             f'Label column name(s): {self.label_columns}'])
 
     def split_window(self, features):
+        # features 形状通常是 [样本数, 总窗口长度, 全部列数]。
         inputs = features[:, self.input_slice, :]
         targets = features[:, self.labels_slice, :]
         if self.label_columns is not None:
+            # 只抽取目标列作为 y，避免把其他协变量误当成标签。
             targets = np.stack(
                 [targets[:, :, self.column_indices[name]] for name in self.label_columns],
                 axis=-1)
@@ -125,6 +132,7 @@ class PrTsfDataloaderConfigs:
                  keep_past_train_samples: bool=True,
                  shuffle_mode: str='none'
                  ):
+        # 这个配置对象集中保存一个市场/模型实验的数据切片方式和窗口长度。
         self.task_name = task_name
         self.exper_setup = exper_setup
         self.dataset_name = dataset_name
@@ -146,9 +154,11 @@ def load_data_model_configs(task_name: str, exper_setup: str, run_id: str):
     """
     path = os.path.join(os.getcwd(), 'experiments', 'tasks', task_name, exper_setup, run_id,'exper_configs.json')
     # Load experiment settings from json
+    # 每个 task/model/run_id 目录下的 exper_configs.json 同时包含 data_config 和 model_config。
     with open(path) as f:
         expe_confs = json.load(f)
 
+    # JSON 中日期被拆成 y/m/d 字段；这里恢复成 Python date，便于后续按日期定位全局索引。
     expe_confs['data_config']['idx_start_train'] = date(year=expe_confs['data_config']['idx_start_train']['y'],
                                                         month=expe_confs['data_config']['idx_start_train']['m'],
                                                         day=expe_confs['data_config']['idx_start_train']['d'])
@@ -159,9 +169,11 @@ def load_data_model_configs(task_name: str, exper_setup: str, run_id: str):
                                                           month=expe_confs['data_config']['idx_end_oos_preds']['m'],
                                                           day=expe_confs['data_config']['idx_end_oos_preds']['d'])
     # Store exper run id
+    # run_id 同时也是结果保存目录的一部分，必须写回 model_config 供引擎使用。
     expe_confs['model_config']['run_id'] = run_id
 
     # Append running experiments configs
+    # 用强字段对象承载 data_config，减少后续主流程里的字典键拼写风险。
     data_configs = PrTsfDataloaderConfigs(
         task_name=task_name,
         exper_setup=exper_setup,
@@ -189,22 +201,26 @@ class PrTsfRecalibEngine:
 
         self.data_configs = data_configs
         # load dataset csv file
+        # 数据 CSV 是完整市场时间序列，后续会按配置截取训练/测试时间段。
         self.dataset = self.__load_dataset_from_file__(dataset_name=data_configs.dataset_name)
         # store the samples involved in the configured experimental period (between start_train and oos_end) and reindex
         self.__store_reindexed_dataset__(data_configs=data_configs)
         # build test samples idxs used by the recalibration iterator
+        # test_set_idxs 保存每个日前测试样本的起始行索引，步长为 pred_horiz。
         self.test_set_idxs = self.__build_test_samples_idxs__()
         # instantiate preprocessing_objs
         self.preproc = self.__instantiate_preproc__()
 
         # store model configs and add internal confs automatically
         self.model_configs = model_configs
+        # 根据配置字符串选择模型类，目前实现只有 DNNRegressor。
         self.model_class = get_model_class_from_conf(self.model_configs['model_class'])
         # Copy pred_horizon from data confs
         self.model_configs['pred_horiz'] = self.data_configs.pred_horiz
         # Build target quantiles from alpha, including the median
         self.model_configs['target_quantiles'] = self.__build_target_quantiles__(self.model_configs['target_alpha'])
         # Build maping between quantile idx and alpha/median
+        # q_alpha_map 后面用于从预测分位数矩阵里快速找到某个 alpha 的上下界列。
         self.model_configs['q_alpha_map'] = self.__build_alpha_quantiles_map__(
                                                             target_quantiles=self.model_configs['target_quantiles'],
                                                             target_alpha=self.model_configs['target_alpha'])
@@ -215,6 +231,7 @@ class PrTsfRecalibEngine:
         Load data from csv
         """
         dir_path = os.getcwd()
+        # CSV 第一列被设为索引，但真正用于模型切片的是后续重建的全局行号。
         ds = pd.read_csv(os.path.join(dir_path, 'data', 'datasets', dataset_name))
         ds.set_index(ds.columns[0], inplace=True)
         return ds
@@ -225,6 +242,7 @@ class PrTsfRecalibEngine:
         Get the global idx related to the input date.
         Mode: 'start': return the idx of first sub_step; 'end': return the idx of first sub_step
         """
+        # 同一天有多个小时/子步，start 取当天第一行，end 取当天最后一行。
         date_idxs= self.dataset[self.dataset[columns_keys['Date']]== date_id.strftime('%Y-%m-%d')].index.tolist()
         if mode=='start':
             global_idx = date_idxs[0]
@@ -244,6 +262,7 @@ class PrTsfRecalibEngine:
                 type(data_configs.idx_end_oos_preds) is date):
             self.data_configs = data_configs
             # set idx from input date
+            # 配置用日期表达时，先映射成原始 CSV 中的全局行号。
             self.data_configs.idx_start_train = self.__get_global_idx_from_date__(self.data_configs.idx_start_train, mode='start')
             self.data_configs.idx_start_oos_preds = self.__get_global_idx_from_date__(self.data_configs.idx_start_oos_preds, mode='start')
             self.data_configs.idx_end_oos_preds = self.__get_global_idx_from_date__(self.data_configs.idx_end_oos_preds, mode='end')
@@ -251,13 +270,16 @@ class PrTsfRecalibEngine:
         elif (type(data_configs.idx_start_train) is int and
               type(data_configs.idx_start_oos_preds) is int and
               type(data_configs.idx_end_oos_preds) is int):
+            # 配置已经是整数索引时直接使用。
             self.data_configs = data_configs
         else:
             sys.exit('ERROR: idx_start_train and idx_start_end can be either int or date vars!')
 
         # Extract dataset samples covering the experiment period
+        # 只保留本次实验涉及的时间范围，避免后续滑动窗口访问无关历史数据。
         self.dataset= self.dataset[self.data_configs.idx_start_train:self.data_configs.idx_end_oos_preds + 1]
         # Reindex dataset and store updated idxs in configs
+        # 截取后重新从 0 编号，使后续切片都以实验片段内部索引为准。
         self.dataset[columns_keys['idx_global']] = np.arange(len(self.dataset))
         self.dataset[columns_keys['idx_step']] = np.arange(stop=len(self.dataset)) // self.data_configs.pred_horiz
         init_global_idx = self.dataset.index.tolist()[0]
@@ -268,11 +290,13 @@ class PrTsfRecalibEngine:
         self.dataset = self.dataset.drop(columns=[columns_keys['idx_global']])
 
     def __build_test_samples_idxs__(self):
+        # 每个测试样本覆盖一个 pred_horiz 长度的日前预测块。
         return np.arange(start=self.data_configs.idx_start_oos_preds,
                          stop=self.data_configs.idx_end_oos_preds,
                          step=self.data_configs.pred_horiz)
 
     def __instantiate_preproc__(self):
+        # 当前仅支持 StandardScaler，特征和目标分别拟合，避免目标尺度影响输入特征。
         if self.data_configs.preprocess == 'StandardScaler':
             preproc = {
                 'feat': StandardScaler(),
@@ -285,16 +309,19 @@ class PrTsfRecalibEngine:
 
     def __build_recalib_dataset_batches__(self, df: pd.DataFrame, fit_preproc: bool):
         # extract features and target columns from the whole dataframe
+        # 输入特征按命名前缀筛选：历史特征、未来已知特征、常量特征以及 DE 数据集专用特征。
         df_feat = df.filter(regex=features_keys['past'] + '|' + features_keys['futu'] + '|' + features_keys['const']
                                   + '|' + features_keys['f_l-1'] + '|' + features_keys['const_l-2'])
         df_target = df.filter(regex=features_keys['target'])
 
         # Fit preprocessing objects using the series steps before the pred_horiz (i.e., the recalibration test sample)
         if fit_preproc:
+            # 标准化器只用测试块之前的数据拟合，避免把当前测试目标泄漏进训练过程。
             self.preproc['feat'].fit(df_feat[:-self.data_configs.pred_horiz])
             self.preproc['target'].fit(df_target[:-self.data_configs.pred_horiz])
 
         # Transform the series by preprocessing objects
+        # 训练、验证和当前测试块都使用同一组 scaler 变换。
         np_feat_scaled = self.preproc['feat'].transform(df_feat)
         np_target_scaled = self.preproc['target'].transform(df_target)
 
@@ -308,10 +335,12 @@ class PrTsfRecalibEngine:
         df_scaled = pd.concat([df_target_scaled, df_feat_scaled], axis=1)
 
         # store x columns names
+        # 模型输入构造函数需要知道每一列的语义前缀，因此把列名写入 model_configs。
         self.x_columns_names = df_scaled.columns.tolist()
         self.model_configs['x_columns_names'] = self.x_columns_names
 
         # Create object used to generate samples following standard moving window
+        # 目标列按 TARG__ 前缀识别，WindowGenerator 只会把这些列作为 y。
         target_col_name =[x for x in df_scaled.columns.tolist() if re.search(features_keys['target'], x)]
         self._win_gen = WindowGenerator(
             input_width=self.data_configs.steps_lag_win * self.data_configs.pred_horiz,
@@ -321,13 +350,16 @@ class PrTsfRecalibEngine:
             target_columns=target_col_name)
 
         # Convert the series into samples
+        # 将连续时间序列切成不重叠的日前样本块：每次向前移动 label_width=pred_horiz。
         series_np = np.array(df_scaled.values).astype(np.float32)
         series_samples = np.stack([series_np[i:i + self._win_gen.total_window_size] for i in
                                   range(0, series_np.shape[0] - self._win_gen.total_window_size + 1, self._win_gen.label_width)])
 
         # Extract the last sample for test (by step-wise recalibration)
+        # 当前 df 的最后一个窗口就是本轮要预测的测试样本。
         recalib_test_sample = np.copy(series_samples[-1:])
         # Put the other samples in the trainvali bag
+        # 之前的窗口都进入训练/验证候选池。
         recalib_trainvali_samples = np.copy(series_samples[:-1])
 
         # Shuffle trainvali samples if requested
@@ -339,6 +371,7 @@ class PrTsfRecalibEngine:
         x_test, y_test = self._win_gen.split_window(recalib_test_sample)
 
         # Separate samples devoted to train and vali
+        # 训练集取前面的样本，验证集取最后 num_vali_samples 个样本，模拟靠近测试期的验证分布。
         x_train = np.copy(trainvali_samples_x[:-self.data_configs.num_vali_samples])
         y_train = np.copy(trainvali_samples_y[:-self.data_configs.num_vali_samples])
         vali_samples_x = np.copy(trainvali_samples_x[-self.data_configs.num_vali_samples:])
@@ -351,6 +384,7 @@ class PrTsfRecalibEngine:
             vali_samples_y = vali_samples_y[p]
 
         # Instantiate recalibration object
+        # 返回结构同时包含当前测试样本和当前滚动窗口下的训练/验证块。
         rec_samples = RecalibSamples(x_test=x_test, y_test=y_test)
         rec_samples.add_recal_block(x_train=x_train,
                                     y_train=y_train,
@@ -364,6 +398,7 @@ class PrTsfRecalibEngine:
         """
         Build target quantiles from the list of alpha, including the median
         """
+        # 与后处理模块保持一致：每个 alpha 对应一对上下界分位数，并额外保留 0.5 中位数。
         target_quantiles = [0.5]
         for alpha in target_alpha:
             target_quantiles.append(alpha/2)
@@ -376,6 +411,7 @@ class PrTsfRecalibEngine:
         """
         Build the map between the alpha coverage levels and the related quantiles
         """
+        # 用索引映射避免后面频繁按数值查找分位数列。
         alpha_q = {'med': target_quantiles.index(0.5)}
         for alpha in target_alpha:
             alpha_q[alpha] = {
@@ -389,6 +425,7 @@ class PrTsfRecalibEngine:
         Create datetime object till the end of last test date to setup the date_range properly
         """
         date_format = '%Y-%m-%d %H:%M'
+        # 结束日期补到当天 23:00，确保生成完整的逐小时测试时间索引。
         end_date= self.dataset.iloc[self.data_configs.idx_end_oos_preds][columns_keys['Date']] + ' 23:00'
         end_date = datetime.strptime(end_date, date_format)
         test_block_timestamps = pd.date_range(start=self.dataset.iloc[self.data_configs.idx_start_oos_preds]
@@ -401,6 +438,7 @@ class PrTsfRecalibEngine:
         results_df.drop(columns=['Datetime'], inplace=True)
 
         # add target column
+        # 把真实目标值补回结果 DataFrame，后续指标计算需要预测列和真实列在同一张表中。
         df_target = self.dataset.filter(regex=features_keys['target']).iloc[self.data_configs.idx_start_oos_preds:
                                                                             self.data_configs.idx_end_oos_preds+1]
         results_df[df_target.columns[0]] = df_target.values
@@ -411,6 +449,7 @@ class PrTsfRecalibEngine:
         """
         returns the experiment path
         """
+        # 路径结构与 experiments/tasks/<task>/<model_setup>/<run_id> 对齐。
         return os.path.join(os.getcwd(), 'experiments', 'tasks', self.data_configs.task_name,
                             self.data_configs.exper_setup, self.model_configs['run_id'])
 
@@ -421,6 +460,7 @@ class PrTsfRecalibEngine:
         """
         exper_save_path = os.path.join(self.get_exper_path(), 'results')
         os.makedirs(exper_save_path, exist_ok=True)
+        # 保存前去掉目标列的 TARG__ 前缀，使后处理时目标列名与 PF_task 对齐。
         target_col_name = test_results_df.filter(regex=features_keys['target']).columns.tolist()[0]
         fn = target_col_name.replace(features_keys['target'], '')
         test_results_df.rename(columns={target_col_name: fn}, inplace=True)
@@ -436,6 +476,7 @@ class PrTsfRecalibEngine:
             # Clear clutter from previous session graphs.
             tf.keras.backend.clear_session()
             # Update model configs with hyperparams trial
+            # 每个 trial 都会把候选超参数写入 model_configs，然后训练一个模型并返回验证损失。
             self.model_configs = self.model_class.get_hyperparams_trial(trial=trial, settings=self.model_configs)
 
             # Build model using the current configs
@@ -455,12 +496,14 @@ class PrTsfRecalibEngine:
         # start from first train sample
         init_sample = 0
         # employ validation set till first test sample
+        # 调参只使用第一个测试样本之前的数据，得到一组固定超参数供整个滚动实验复用。
         test_sample_idx = self.test_set_idxs[0]
         train_vali_block = self.__build_recalib_dataset_batches__(
             self.dataset[init_sample:test_sample_idx + self.data_configs.pred_horiz],
             fit_preproc=True).recalibBlocks[0]
 
         if optuna_m == 'grid_search':
+            # 当前实现只支持网格搜索；搜索空间由具体模型类给出。
             search_space = self.model_class.get_hyperparams_searchspace()
             sampler = optuna.samplers.GridSampler(search_space)
             pruner = optuna.pruners.MedianPruner(n_startup_trials=100, n_warmup_steps=20)
@@ -476,6 +519,7 @@ class PrTsfRecalibEngine:
                       + '-' + optuna_m)
         storage_name="sqlite:///db.sqlite3"
 
+        # Optuna study 会复用同名 sqlite 记录，便于中断后继续调参。
         study = optuna.create_study(direction="minimize",
                                     sampler=sampler,
                                     pruner=pruner,
@@ -501,11 +545,13 @@ class PrTsfRecalibEngine:
         for key, value in trial.params.items():
             print("    {}: {}".format(key, value))
             # store best hyper in the config dict
+            # 把最佳 trial 的超参数写回配置，最后转成可保存的超参数字典。
             self.model_configs[key] = value
 
         return self.model_class.get_hyperparams_dict_from_configs(self.model_configs)
 
     def get_model_hyperparams(self, method, optuna_m='tpe'):
+        # method 控制是重新调参还是加载已保存的 tuned_hyperp-*.json。
         self.optuna_m = optuna_m
         self.hyper_mode = method
         path = os.path.join(self.get_exper_path(), 'tuned_hyperp-' + optuna_m + '.json')
@@ -515,6 +561,7 @@ class PrTsfRecalibEngine:
             model_hyperparams= self.run_hyperparams_tuning(optuna_m=optuna_m)
             print('-----------------------------------------')
             # save model hyperparams to json
+            # 调参完成后把最佳超参数保存到当前实验目录，后续 load_tuned 可直接复用。
             with open(path, 'w') as f:
                 json.dump(model_hyperparams, f)
 
@@ -524,6 +571,7 @@ class PrTsfRecalibEngine:
             print('-----------------------------------------')
             print('Loading tuned hyperparams')
             print('-----------------------------------------')
+            # 复现实验默认走这里，避免重新进行昂贵的 Optuna 搜索。
             with open(path) as f:
                 return json.load(f)
         else:
@@ -534,6 +582,7 @@ class PrTsfRecalibEngine:
         Main recalibration loop
         """
         # Get model hyperparameters (previously saved or by tuning)
+        # 每个 run_id 只加载/搜索一次超参数；后面每个测试样本都会重新训练模型权重。
         model_hyperparams=self.get_model_hyperparams(method=hyper_mode, optuna_m=self.model_configs['optuna_m'])
 
         print('------------------------------------------------------------------------------')
@@ -545,13 +594,16 @@ class PrTsfRecalibEngine:
 
         # Iterate over test samples
         for i_t in range(self.test_set_idxs.shape[0]):
+            # 清理上一轮 TensorFlow 图，减少长时间滚动训练时的显存/内存累积。
             tf.keras.backend.clear_session()
             print('Recalibrating test sample: ' + str(i_t+1) + '/' + str(self.test_set_idxs.shape[0]))
             test_sample_idx = self.test_set_idxs[i_t]
             # Set index of first train sample, depending on the config
+            # keep_past_train_samples=True 表示扩张窗口训练；False 表示滚动窗口训练。
             init_sample = 0 if self.data_configs.keep_past_train_samples else i_t * self.data_configs.pred_horiz
 
             # Build the current recalibratin batch including preprocessing (preprocess option)
+            # 当前切片从 init_sample 到本轮测试块结束，最后一个窗口作为测试，其前面作为训练/验证。
             rec_samples = self.__build_recalib_dataset_batches__(
                 self.dataset[init_sample:test_sample_idx+self.data_configs.pred_horiz],
                                          fit_preproc=True)
@@ -560,6 +612,7 @@ class PrTsfRecalibEngine:
             rec_block = rec_samples.recalibBlocks[0]
 
             # Merge model configs and hyperparams tuning into the settings dict
+            # settings 是模型、训练、分位数、ensemble 全部配置的统一入口。
             settings = {**self.model_configs, **model_hyperparams}
             # Create ensemble handler
             ensemble = Ensemble(settings=settings)
@@ -569,6 +622,7 @@ class PrTsfRecalibEngine:
 
             # Create and fit the ensemble components
             for e in range(settings['num_ense']):
+                # 同一个测试样本下训练多个 ensemble 组件，再聚合它们的输出。
                 tf.keras.backend.clear_session()
                 model = regression_model(settings=settings,
                                          sample_x=rec_samples.x_test)
@@ -582,12 +636,15 @@ class PrTsfRecalibEngine:
                 preds_test_e.append(model.predict(rec_samples.x_test))
 
             # Aggregate ensemble predictions
+            # 对点预测/QR/分布式输出采用不同聚合方式，由 Ensemble 内部按 PF_method 分派。
             ensem_preds_test = ensemble.aggregate_preds(preds_test_e)
 
             # Build and store the prediction quantiles for the current test samples using the selected method
+            # 所有模型最终都会被转换成统一的 [24小时, 目标分位数] 输出。
             ens_p = ensemble.get_preds_test_quantiles(preds_test=ensem_preds_test)
             rescaled_PIs = {}
             for i in range(ens_p.shape[-1]):
+                # 模型在标准化目标尺度上训练，保存前要反变换回真实电价尺度。
                 rescaled_PIs[self.model_configs['target_quantiles'][i]] = self.preproc['target'].inverse_transform(
                     ens_p[:, i:i + 1])[:, 0]
             results_df = pd.DataFrame(rescaled_PIs)
@@ -596,6 +653,7 @@ class PrTsfRecalibEngine:
         test_results_df = self.__transform_test_results__(pd.concat(ensem_test_PIs, axis=0))
 
         # Save results to file
+        # 最终文件供 exec_qra_cp.py 读取并继续做 QRA/CP 后处理。
         self.__save_results__(test_results_df)
 
         # Send email

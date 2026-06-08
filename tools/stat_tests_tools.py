@@ -9,6 +9,7 @@ from typing import List, Union, Dict
 
 def get_critical_chi_square(significance_level: float = 0.05):
     # test confidence level
+    # Kupiec LR_UC 统计量服从 1 自由度卡方分布，这里返回给定显著性水平下的临界值。
     conf_level = 1- significance_level
     return chi2.ppf(conf_level, 1)  # one degree of freedom
 
@@ -35,6 +36,7 @@ def kupiec_test(
         Returns:
             answer (dict):             statistics and decision of the test
     """
+    # 先把不同输入类型统一转成覆盖命中次数 n1。
     if isinstance(PI_hits, pd.core.series.Series):
         n1 = PI_hits[PI_hits == 1].count()
     elif isinstance(PI_hits, pd.core.frame.DataFrame):
@@ -50,8 +52,10 @@ def kupiec_test(
     c = 1 - alpha
     n = len(PI_hits)
     n0 = n - n1
+    # pi 是经验覆盖率；为了避免 log(0)，上界截断到非常接近 1。
     pi = min(n1 / n, 0.999999999999999)
 
+    # LR_UC 比较“目标覆盖率 c”和“样本经验覆盖率 pi”两个伯努利似然。
     LR_UC = -2 * (
                     n0 * np.log(1 - c)
                   + n1 * np.log(c)
@@ -62,6 +66,7 @@ def kupiec_test(
     critical_chi_square = get_critical_chi_square(significance_level)
 
     if LR_UC > critical_chi_square:
+        # 统计量超过临界值，说明经验覆盖率与目标覆盖率显著不一致。
         result = "Reject H0"
         passed = False
     else:
@@ -135,6 +140,7 @@ def DM(p_real, losses_model_1, losses_model_2, version='univariate'):
     """
 
     # Checking that all time series have the same shape
+    # 三个序列必须按 [天数, 每天小时数] 对齐，否则 DM 统计量没有可比性。
     if p_real.shape != losses_model_1.shape or p_real.shape != losses_model_2.shape:
         raise ValueError('The three time series must have the same shape')
 
@@ -145,6 +151,7 @@ def DM(p_real, losses_model_1, losses_model_2, version='univariate'):
     # Computing the test statistic
     if version == 'univariate':
         # Computing the loss differential series for the univariate test
+        # 单变量版本对每个小时分别比较两个模型的损失差。
         d = losses_model_1 - losses_model_2
 
         # Computing the test statistic
@@ -153,12 +160,14 @@ def DM(p_real, losses_model_1, losses_model_2, version='univariate'):
 
     elif version == 'multivariate':
         # Computing the loss differential series for the multivariate test
+        # 多变量版本先把一天 24 小时损失聚合成日均损失，再整体比较模型。
         d = np.mean(losses_model_1, axis=1) - np.mean(losses_model_2, axis=1)
         # Computing the test statistic
         mean_d = np.mean(d)
         var_d = np.var(d, ddof=0)
 
     N = d.shape[0]
+    # DM_stat 越大表示 model_1 损失相对 model_2 越高；p_value 小则 model_2 显著更好。
     DM_stat = mean_d / np.sqrt((1 / N) * var_d)
 
     p_value = 1 - stats.norm.cdf(DM_stat)
@@ -193,6 +202,7 @@ def plot_multivariate_DM_test(real_price, forecasts_losses, title='DM test', sav
     """
 
     # Computing the multivariate DM test for each forecast pair
+    # 行列都是模型名；单元格保存“列模型是否显著优于行模型”的 p-value。
     p_values = pd.DataFrame(index=forecasts_losses.columns, columns=forecasts_losses.columns)
 
     for model1 in forecasts_losses.columns:
@@ -209,6 +219,7 @@ def plot_multivariate_DM_test(real_price, forecasts_losses, title='DM test', sav
 
 
     # Defining color map
+    # 色图被限制在 0 到 0.1，突出显示常用 10% 显著性水平以内的模型差异。
     red = np.concatenate([np.linspace(0, 1, 50), np.linspace(1, 0.5, 50)[1:], [0]])
     green = np.concatenate([np.linspace(0.5, 1, 50), np.zeros(50)])
     blue = np.zeros(100)
@@ -217,6 +228,7 @@ def plot_multivariate_DM_test(real_price, forecasts_losses, title='DM test', sav
     rgb_color_map = mpl.colors.ListedColormap(rgb_color_map)
 
     # Generating figure
+    # 斜线位置是同一模型对比，固定为白色叉号；非对角位置显示两两 DM 检验结果。
     fig = plt.figure(figsize=(3.5, 3.5))
     plt.imshow(p_values.astype(float).values, cmap=rgb_color_map, vmin=0, vmax=0.1)
     plt.xticks(range(len(forecasts_losses.columns)), forecasts_losses.columns, rotation=90.)
