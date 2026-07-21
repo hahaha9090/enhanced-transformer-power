@@ -1,0 +1,174 @@
+revisions:
+  - id: R1
+    date: "2026-06-11"
+    actor: "Codex"
+    source_manuscript: "基于波动感知自适应保形分位数回归的日前电价概率预测方法.docx"
+    outputs:
+      - ".paper/claims.yml"
+      - ".paper/figures.yml"
+      - "paper_outputs/word/main_results_inventory.md"
+      - "paper_outputs/word/va_ocqr_manuscript_draft.md"
+    notes: "Built the initial paper memory from current draft, final result tables, VA-OCQR figures, and publication claim audit. Claims were scoped conservatively around baseline reproduction, high-volatility undercoverage diagnosis, VA-OCQR repair, seven-market validation, and the global-widening negative control."
+
+  - id: R2
+    date: "2026-07-19"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v0.2"
+    outputs:
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/revision_history.yml"
+    notes: "经作者确认，将小论文压缩为五个一级章节，形成问题发现、VICQR解决方案和可靠实验验证三段主体论证；将VICQR与OCQR的关系统一为系统研究、提炼有效原理、吸收并重新构建完整条件校准决策；增加主文图表预算和简洁性约束。"
+
+  - id: R3
+    date: "2026-07-19"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v0.3"
+    outputs:
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/revision_history.yml"
+    notes: "根据对作者要求的当时理解，新增了局部高权重入口，并将两项研究表述放入该入口；这一文件职责解释随后由R4纠正。"
+
+  - id: R4
+    date: "2026-07-19"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v0.4"
+    outputs:
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/revision_history.yml"
+    notes: "按作者澄清，删除蓝图中的局部最高权重入口，明确整个blueprint均为作者已经确定的高权重论文内容；将两项研究表述放回核心科学发现、中心论点和证据边界，将writing_protocol恢复为仅规定如何依据蓝图写作的执行协议。"
+
+  - id: R5
+    date: "2026-07-19"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v0.5"
+    outputs:
+      - ".paper/blueprint.md"
+      - ".paper/revision_history.yml"
+    notes: "经作者确认，在论文研究对象中补充高波动欠覆盖对价格尾部风险、市场交易、储能调度和风险管理的实际影响，并记录三篇2024—2025年一手论文的论文引用格式和DOI链接。"
+
+  - id: R6
+    date: "2026-07-19"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v0.6"
+    outputs:
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/revision_history.yml"
+    notes: "经作者确认，将“高波动条件下预测区间可靠性下降”锁定为论文唯一中心问题，将高波动欠覆盖定位为核心表现，将条件风险分配不足、上下尾失衡和区间效率损失定位为原因解释与诊断；将结论措辞统一为改善或缓解可靠性下降，并以跨市场适用能力替代普遍条件覆盖保证。"
+
+  - id: R7
+    date: "2026-07-20"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v0.7"
+    outputs:
+      - "AGENTS.md"
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/references.yml"
+      - ".paper/revision_history.yml"
+    notes: "经作者确认，建立文献证据索引并记录首批六篇已核验文献的引文、原始网址、可支持主张和引用边界；将“先证明问题存在、再以相同标准证明VICQR改善”的两阶段操作性判定协议写入蓝图，同时记录正式条件覆盖检验、Winkler配对统计推断和多重检验控制仍为投稿前待完成证据。"
+
+  - id: R8
+    date: "2026-07-20"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v0.8"
+    outputs:
+      - "AGENTS.md"
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/references.yml"
+      - ".paper/revision_history.yml"
+    notes: "经作者确认，建立BP-LIT稳定陈述编号与Rxxx文献ID的双向引用映射，区分文献核验状态与作者批准状态，并规定内部文献ID不得直接作为最终稿编号；补录此前已进入蓝图但遗漏于文献索引的Lipiecki等（2024）论文，依据Elsevier正式页面核验其作者、题名、卷、文章号、DOI和支持边界。"
+
+  - id: R9
+    date: "2026-07-20"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v0.9"
+    outputs:
+      - ".paper/claims.yml"
+      - ".paper/revision_history.yml"
+    notes: "按作者确认的VICQR中心问题重建主张记忆：保留旧VA-OCQR主张为rejected审计轨迹，新增中心问题诊断、七市场点估计、条件欠覆盖证据边界、状态控制、证据融合、风险门控、因果完整性和比利时外部证据主张；建立问题存在、模型改善、安全约束和外部适用性的证据门，并将正式条件覆盖检验、七市场配对统计推断、强基线统一比较及普遍条件覆盖保证明确标记为gap。"
+
+  - id: R10
+    date: "2026-07-20"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v0.9"
+    outputs:
+      - ".paper/status.md"
+      - ".paper/revision_history.yml"
+    notes: "经作者确认，新增一页式论文状态导航，集中记录论文主线、已锁定内容、已完成工作、当前有效结果、被纠正的效应量解释、唯一当前任务、暂不可写结论及后续固定顺序；该文件只承担进度导航职责，不修改蓝图事实。"
+
+  - id: R11
+    date: "2026-07-20"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v1.0"
+    outputs:
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/claims.yml"
+      - ".paper/figures.yml"
+      - ".paper/status.md"
+      - ".paper/revision_history.yml"
+    notes: "经作者确认，为尽快推进论文初稿，将服务器原始明细丢失后依据保留实验摘要完成的最新恢复聚合结果设为当前点估计：80%和60%区间的平均高波动覆盖分别由约75.09%和55.30%恢复至79.41%和59.77%，Winkler相对改善约2.13%和2.08%，宽度降低约1.86%和2.13%，两个水平均为7/7市场同向。同步将dd旧完整批次降为辅助机制证据，清除figures.yml中的VA-OCQR映射，并规定约束重建的细粒度数值和缺少原始bootstrap分布的p<0.05不得作为已复核统计结论。"
+
+  - id: R12
+    date: "2026-07-21"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v1.1"
+    outputs:
+      - "AGENTS.md"
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/claims.yml"
+      - ".paper/figures.yml"
+      - ".paper/status.md"
+      - ".paper/revision_history.yml"
+      - "runpro_workspace/project-status.md"
+      - "paper_outputs/word/vicqr_current/CURRENT_MANUSCRIPT.md"
+    notes: "经作者确认，对此前已锁定事项进行一致性复盘与收口：将蓝图更新为v1.1并把问题诊断限定为最新聚合欠覆盖证据、旧完整批次尾部与机制控制限定为辅助证据；修正claims.yml与figures.yml的主张—图表双向映射和表格编号；明确当前overall_metrics.csv未同步，因而当前批次不能声称保持总体覆盖；将paper_outputs/word/vicqr_current/设为当前论文稿唯一入口，保留但隔离旧Word、Markdown和执行状态快照；统一status.md的成稿路线，取消“只做统计检验、不写正文”的旧限制。"
+
+  - id: R13
+    date: "2026-07-21"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v1.2"
+    outputs:
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/claims.yml"
+      - ".paper/figures.yml"
+      - ".paper/status.md"
+      - ".paper/revision_history.yml"
+      - "paper_outputs/word/vicqr_current/CURRENT_MANUSCRIPT.md"
+    notes: "经作者确认，在中心问题锁定后重新审查五章结构并进行局部重排：保留引言、问题诊断、VICQR模型、实验评价与讨论、结论五个一级章节；将第二章限定为证明OCQR高波动可靠性下降并推出VICQR设计要求，不再提前展示方法效果或负对照；将统一扩张替代解释、跨市场一致性、机制消融和风险门控统一归入第四章；将第四章标题由预判式Reliable Experimental Validation改为中性的Experimental Evaluation and Discussion，并同步当前稿入口和论文记忆版本。"
+
+  - id: R14
+    date: "2026-07-21"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v1.3"
+    outputs:
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/claims.yml"
+      - ".paper/figures.yml"
+      - ".paper/status.md"
+      - ".paper/revision_history.yml"
+      - "paper_outputs/word/vicqr_current/CURRENT_MANUSCRIPT.md"
+    notes: "经作者确认，对五章结构中的全部英文章节和小节标题进行局部学术化修订，不改变章节顺序、职责、研究事实或证据边界：将高波动诊断标题明确为高波动条件下的区间可靠性诊断；以causally available避免causal被误解为因果推断；以VICQR全称和在线区间校准任务替代redesigned表述；将实验协议、指标、有效性控制、机制消融、替代对照和适用边界改为更具体且平行的学术标题。"
+
+  - id: R15
+    date: "2026-07-21"
+    actor: "Codex"
+    source_manuscript: ".paper/blueprint.md v1.4"
+    outputs:
+      - ".paper/blueprint.md"
+      - ".paper/writing_protocol.md"
+      - ".paper/claims.yml"
+      - ".paper/figures.yml"
+      - ".paper/status.md"
+      - ".paper/revision_history.yml"
+      - "paper_outputs/word/vicqr_current/CURRENT_MANUSCRIPT.md"
+      - "paper_outputs/word/vicqr_current/vicqr_manuscript_cn.md"
+    notes: "经作者确认，将第三章的首要目标由突出代码级可复现性校正为建立定义完整、逻辑闭合、科学可信的VICQR新方法对象：统一呈现输入、状态、候选动作、双证据评价、风险决策、区间输出和在线更新闭环；可复现性保留为方法完整性与可复核性检查。同步建立五章中文稿及第二、第三章段落级论证骨架，未改变中心问题、实验数字、证据批次、结论强度和五章结构。"

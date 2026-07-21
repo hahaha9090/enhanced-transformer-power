@@ -1,0 +1,398 @@
+schema_version: "2.0"
+paper_method: "VICQR"
+updated: "2026-07-21"
+source_blueprint: ".paper/blueprint.md v1.4"
+status: "consistency_alignment_completed_for_current_manuscript"
+purpose: "记录VICQR论文主张、证据产物、统计检验缺口、允许措辞和禁止扩写边界。"
+
+status_definitions:
+  supported: "现有产物能够直接支持当前限定措辞。"
+  draft: "已有描述性或初步证据，但正式推断、措辞或展示方式尚未闭环。"
+  gap: "论文希望提出该主张，但当前缺少足够证据；满足gap_reason前不得进入正文。"
+  rejected: "旧模型、错误解释或过强主张；保留记录以防重新泄漏。"
+
+evidence_policy:
+  - "主张必须追溯到实际存在的结果、协议、审计或代码产物。"
+  - "点估计与统计显著性严格分开；没有正式检验时不得使用显著、证明或保证。"
+  - "外部文献只支撑领域事实、理论和评价规范，不能替代VICQR自身实验结果。"
+  - "figure_or_table中的编号是蓝图规划编号，并与figures.yml保持双向一致；规划编号不表示图形已经渲染。"
+  - "最新恢复聚合摘要可用于论文初稿点估计；约束重建的市场—小时数值、未同步的辅助表和不可复核的p值不得用于建立新主张。"
+
+center_problem_evidence_gate:
+  problem_existence:
+    claim_ids: ["C9"]
+    status: "restored_aggregate_undercoverage_point_estimates_available_formal_inference_pending"
+    remaining_tests:
+      - "高波动市场—小时条件覆盖的正式检验或置信区间。"
+      - "必要的多重检验控制。"
+  auxiliary_problem_mechanism:
+    claim_ids: ["C10"]
+    status: "legacy_complete_batch_supportive_tail_diagnosis_pending_alignment"
+    remaining_tests:
+      - "在与最新主结果一致的批次中复核上下尾失误和市场异质性。"
+  model_improvement:
+    claim_ids: ["C12", "C13", "C14"]
+    status: "restored_aggregate_coverage_recovery_and_interval_score_improvement_available"
+    remaining_tests:
+      - "七市场高波动Winkler配对统计推断。"
+      - "条件coverage gap与欠覆盖状态变化的正式统计支持。"
+  no_unacceptable_tradeoff:
+    claim_ids: ["C12", "C13", "C17"]
+    status: "latest_aggregate_high_volatility_coverage_and_width_point_estimates_plus_prior_control_batch"
+    remaining_tests:
+      - "使用一致批次的overall coverage证明总体校准不存在不可接受恶化。"
+      - "覆盖非劣效边界及其置信区间。"
+      - "将风险门控控制实验与最终主结果批次对齐。"
+  external_applicability:
+    claim_ids: ["C19", "C21"]
+    status: "supportive_only"
+    remaining_tests:
+      - "增加满足预设高波动样本门槛的外部市场或年份。"
+
+claims:
+  - id: C1
+    category: "baseline_context"
+    text: "Baseline OCQR reproduces the main calibration advantage of the preserved PefCodeBench-style experiment frame, especially in hourly Kupiec pass counts relative to CP, QR, and CQR."
+    evidence_artifacts:
+      - "paper_outputs/results_tables/ocq_vs_baselines_summary.csv"
+      - "paper_outputs/results_tables/summary_all_markets_mean_kpis.csv"
+      - "paper_outputs/results_tables/paper_main_table_selected_methods.csv"
+      - "paper_outputs/word/revised_paper_framework_v2.docx"
+    figure_or_table: ["Tab2"]
+    status: "draft"
+    risk: "该主张仍可作为OCQR基准复现背景，但数据来自早期论文框架；进入VICQR正文前需与当前冻结开发划分和最终基线表重新对齐。"
+    allowed_wording: "OCQR在保留的基准框架中表现出具有竞争力的在线边际校准能力。"
+    prohibited_wording: "OCQR在所有指标和覆盖水平上均为最佳方法。"
+    sentence_in_manuscript: "The reproduced baseline shows that OCQR improves the calibration-oriented indicators over the non-adaptive baselines, particularly the number of hours passing the Kupiec coverage test."
+
+  - id: C2
+    category: "legacy_problem_statement"
+    text: "The preserved OCQR baseline still exhibits conditional undercoverage under high-volatility samples across the seven-market frame."
+    evidence_artifacts:
+      - "paper_outputs/results_tables/volatility_diagnosis/high_volatility_summary_selected_methods.csv"
+      - "paper_outputs/results_tables/volatility_diagnosis/volatility_group_summary_selected_methods.csv"
+      - "paper_outputs/results_tables/volatility_diagnosis_va/high_volatility_summary_va_methods.csv"
+    figure_or_table: ["Tab2", "Fig1"]
+    status: "rejected"
+    rejection_reason: "该句属于旧VA-OCQR论文语境，不能直接进入VICQR正文。最新恢复聚合摘要中的等价VICQR问题诊断由C9重新记录，并保留当前数据来源与推断边界。"
+    replacement_claims: ["C9", "C10"]
+    sentence_in_manuscript: "Although OCQR is competitive on the aggregate frame, the high-volatility subset remains systematically below the target coverage level."
+
+  - id: C3
+    category: "legacy_va_ocqr"
+    text: "VA-OCQR is an independent volatility-aware post-processing calibration method and does not replace or retrain the neural forecasting backbone."
+    evidence_artifacts:
+      - "exec_va_calibration.py"
+      - "export_va_results.py"
+      - "tools/volatility_calibration_tools.py"
+      - "paper_outputs/results_tables/volatility_diagnosis_va/baseline_integrity_hashes.csv"
+      - ".research/design_brief.md"
+    figure_or_table: []
+    status: "rejected"
+    rejection_reason: "VA-OCQR不再是论文方法对象；当前论文方法已锁定为完整新模型VICQR。"
+    replacement_claims: ["C11"]
+    sentence_in_manuscript: "The proposed method is applied after the saved quantile forecasts are produced, so the comparison isolates the calibration rule rather than a new forecasting backbone."
+
+  - id: C4
+    category: "legacy_va_ocqr"
+    text: "On the full seven-market evaluation, VA-OCQR moves high-volatility coverage gaps closer to zero than OCQR at alpha = 0.2 and alpha = 0.4 while keeping Winkler scores close to the OCQR baseline."
+    evidence_artifacts:
+      - "paper_outputs/results_tables/volatility_diagnosis_va/publication_claim_audit.md"
+      - "paper_outputs/results_tables/volatility_diagnosis_va/high_volatility_summary_va_methods.csv"
+      - "paper_outputs/results_tables/volatility_diagnosis_va/volatility_group_summary_va_methods.csv"
+      - "paper_outputs/figures/va_experiment/coverage_gap_high_volatility.png"
+      - "paper_outputs/figures/va_experiment/winkler_high_volatility.png"
+    figure_or_table: ["Tab2", "Fig1", "Fig2"]
+    status: "rejected"
+    rejection_reason: "该主张属于已淘汰VA-OCQR实验，不得用于VICQR效果证明。"
+    sentence_in_manuscript: "At alpha = 0.2 and 0.4, VA-OCQR reduces the high-volatility coverage gap from -0.0476 to -0.0126 and from -0.0430 to -0.0016, respectively, with Winkler scores remaining close to OCQR."
+
+  - id: C5
+    category: "legacy_va_ocqr"
+    text: "The negative-control widening experiment suggests that the improvement is not merely a global widening effect, because uniform widening creates substantially larger low/mid-volatility spillover."
+    evidence_artifacts:
+      - "paper_outputs/results_tables/volatility_diagnosis_va/negative_control_global_widening_summary.csv"
+      - "paper_outputs/results_tables/volatility_diagnosis_va/negative_control_global_widening.csv"
+      - "paper_outputs/figures/va_experiment/negative_control_low_mid_width.png"
+    figure_or_table: ["Tab4", "Fig4"]
+    status: "rejected"
+    rejection_reason: "该负对照属于VA-OCQR阶段；VICQR论文需使用当前VICQR状态、证据融合和风险门控控制实验。"
+    replacement_claims: ["C15", "C16", "C17"]
+    sentence_in_manuscript: "The widening control attains similar high-volatility gap reduction, but its low/mid-volatility absolute gap and width increase much more than VA-OCQR."
+
+  - id: C6
+    category: "legacy_va_ocqr"
+    text: "VA-OCQR maintains strong hourly calibration reliability in the seven-market frame, with average Kupiec passed hours comparable to OCQR."
+    evidence_artifacts:
+      - "paper_outputs/results_tables/volatility_diagnosis_va/kupiec_passed_hours_summary_va_methods.csv"
+      - "paper_outputs/results_tables/volatility_diagnosis_va/hourly_picp_va_methods.csv"
+      - "paper_outputs/figures/va_experiment/hourly_picp_ocqr_vs_va.png"
+      - "paper_outputs/figures/va_experiment/kupiec_passed_hours.png"
+    figure_or_table: ["Tab3", "Fig3"]
+    status: "rejected"
+    rejection_reason: "该主张属于已淘汰VA-OCQR结果，不能替代VICQR的当前条件覆盖和校准证据。"
+    sentence_in_manuscript: "The hourly diagnostics show that VA-OCQR keeps the Kupiec pass-hour performance at a level comparable to OCQR while improving the high-volatility gap."
+
+  - id: C7
+    category: "legacy_theoretical_overclaim"
+    text: "VA-OCQR provides unconditional finite-sample validity for every volatility state."
+    evidence_artifacts: []
+    figure_or_table: []
+    status: "rejected"
+    rejection_reason: "VA-OCQR已退出论文，且从未存在支撑该形式化保证的定理和证明。"
+
+  - id: C8
+    category: "legacy_uniform_optimality_overclaim"
+    text: "VA-OCQR is uniformly optimal across all markets, hours, alpha levels, and metrics."
+    evidence_artifacts: []
+    figure_or_table: []
+    status: "rejected"
+    rejection_reason: "VA-OCQR已退出论文，且原始结果本身也不支持统一最优。"
+
+  - id: C9
+    category: "center_problem_diagnosis"
+    blueprint_anchor: "Section 4, center problem"
+    text: "最新恢复的七市场聚合点估计显示，OCQR在80%和60%预测区间上的平均高波动覆盖率分别约为75.09%和55.30%，相对名义覆盖率分别欠覆盖约4.91和4.70个百分点。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v5_development/high_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/recovered_effect_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/protocol.json"
+      - "paper_outputs/results_tables/vicqr_v5_development/artifact_hash_manifest.json"
+    figure_or_table: ["Fig1"]
+    status: "draft"
+    current_evidence:
+      - "alpha=0.2：OCQR平均高波动覆盖率约75.09%，coverage gap约-4.91个百分点。"
+      - "alpha=0.4：OCQR平均高波动覆盖率约55.30%，coverage gap约-4.70个百分点。"
+    evidence_batch: "latest_restored_aggregate"
+    risk: "这些值是服务器原始明细丢失后依据保留实验摘要恢复的聚合点估计；可以用于当前初稿的问题量化，但不能替代正式条件覆盖检验，也不能使用约束重建的市场—小时单元扩写局部结论。"
+    literature_refs: ["R001", "R002", "R003", "R005"]
+    allowed_wording: "最新七市场聚合点估计表明，OCQR在两个主要区间水平上均存在平均高波动欠覆盖。"
+    prohibited_wording: "OCQR在七个市场的全部高波动状态下系统性欠覆盖。"
+    required_tests:
+      - "使用可复核原始数据完成高波动聚合或预先定义子群的正式条件覆盖检验。"
+      - "报告时间依赖稳健置信区间。"
+
+  - id: C10
+    category: "center_problem_tail_diagnosis"
+    blueprint_anchor: "Section 4, tail imbalance"
+    text: "旧本地完整批次的条件诊断显示，高波动状态下存在具有市场异质性的上下尾失误不平衡；该诊断用于解释可靠性下降机制，不作为最新恢复聚合主结果的精确数值结论。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v5_development/dd/tail_balance_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/dd/high_metrics.csv"
+    figure_or_table: ["Fig1"]
+    status: "draft"
+    evidence_batch: "legacy_complete_local_backup"
+    evidence_scope: "七个开发市场旧本地完整批次，高波动状态，alpha=0.2和0.4的描述性诊断。"
+    risk: "旧完整批次尚未与最新恢复聚合主结果对齐。尾部不平衡只能作为初稿中的机制性辅助观察，最终定量表述应等待一致批次证据。"
+    allowed_wording: "旧完整批次的辅助诊断提示，OCQR高波动失误具有上下尾与市场异质性。"
+    prohibited_wording: "尾部不平衡已经证明OCQR在所有高波动状态下欠覆盖。"
+
+  - id: C11
+    category: "model_definition"
+    blueprint_anchor: "Section 2, fixed VICQR definition"
+    text: "VICQR是吸收经系统研究确认有效的在线边际校准原理，并重新构建状态表征、动作空间、证据评估和风险决策过程后形成的完整新模型。"
+    evidence_artifacts:
+      - ".paper/blueprint.md"
+      - "paper_outputs/results_tables/vicqr_v5_development/protocol.json"
+      - "paper_outputs/results_tables/vicqr_v5_development/action_diagnostics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/source_prior_summary.csv"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/decision_protocol.json"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/safety_mechanism_audit.csv"
+    figure_or_table: ["Fig2", "Fig3"]
+    status: "supported"
+    risk: "模型定义已锁定，但最终方法章节仍需给出数学定义、信息集、阈值和多层多分支架构图；不得重新写成OCQR后的附加插件。"
+    allowed_wording: "VICQR is a redesigned conditional online interval-calibration model."
+    prohibited_wording: "VICQR is a lightweight add-on that simply appends one quantile to OCQR."
+
+  - id: C12
+    category: "main_seven_market_effect"
+    blueprint_anchor: "Section 8, current evidence"
+    text: "最新恢复聚合点估计显示，VICQR在两个主要区间水平上均降低平均高波动Winkler分数并缩短区间，且两个水平下均有7/7市场获得负的Winkler变化。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v5_development/high_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/recovered_effect_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/validation_gate_audit.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/protocol.json"
+      - "paper_outputs/results_tables/vicqr_v5_development/artifact_hash_manifest.json"
+    figure_or_table: ["Fig4", "Fig5", "Tab2"]
+    status: "draft"
+    current_evidence:
+      - "alpha=0.2：平均高波动Winkler差值为-0.5300，相对改善约2.13%，平均宽度降低约1.86%，7/7市场为负。"
+      - "alpha=0.4：平均高波动Winkler差值为-0.4159，相对改善约2.08%，平均宽度降低约2.13%，7/7市场为负。"
+    evidence_batch: "latest_restored_aggregate"
+    risk: "该主张可用于初稿的聚合点估计；正式配对统计推断和原始重采样分布不可用，不得添加significantly，也不得把重建后的逐市场幅度作为已复核真实明细。当前overall_metrics.csv未与恢复主结果同步，不能据此声称VICQR在当前批次保持总体覆盖。"
+    allowed_wording: "最新七市场聚合点估计表明，VICQR改善高波动综合区间分数并缩短区间，两个主要水平的改善方向均为7/7。"
+    prohibited_wording: "VICQR将高波动Winkler显著降低5.90%和6.88%。"
+    required_tests:
+      - "按日期或合适时间块进行的七市场配对统计推断。"
+      - "报告置信区间、效应量和最差市场。"
+
+  - id: C13
+    category: "conditional_undercoverage_effect_boundary"
+    blueprint_anchor: "Section 4 and Section 8, coverage recovery"
+    text: "最新恢复聚合点估计显示，VICQR将80%和60%区间的平均高波动覆盖率分别提高约4.32和4.47个百分点，使coverage gap缩小到约-0.59和-0.23个百分点。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v5_development/high_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/recovered_effect_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/validation_gate_audit.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/protocol.json"
+    figure_or_table: ["Fig4", "Tab2"]
+    status: "draft"
+    current_evidence:
+      - "alpha=0.2：平均覆盖率由约75.09%提高至79.41%，恢复约4.32个百分点，剩余gap约-0.59个百分点。"
+      - "alpha=0.4：平均覆盖率由约55.30%提高至59.77%，恢复约4.47个百分点，剩余gap约-0.23个百分点。"
+    evidence_batch: "latest_restored_aggregate"
+    risk: "当前支持平均聚合层面的覆盖恢复，不支持所有市场、小时或状态单元均得到缓解；正式条件覆盖推断仍待可复核数据闭环。"
+    allowed_wording: "最新聚合点估计表明，VICQR在描述性层面明显缓解平均高波动欠覆盖。"
+    prohibited_wording: "VICQR已经在所有市场—小时单元中减少欠覆盖。"
+
+  - id: C14
+    category: "center_conclusion_pending"
+    blueprint_anchor: "Section 6, center argument"
+    text: "最新七市场聚合点估计表明，VICQR在描述性层面缓解平均高波动欠覆盖，并同时改善高波动Winkler分数和区间效率。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v5_development/high_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/recovered_effect_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/validation_gate_audit.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/protocol.json"
+    figure_or_table: ["Fig4", "Fig5", "Tab2"]
+    status: "draft"
+    evidence_batch: "latest_restored_aggregate"
+    risk: "中心结论目前只达到恢复聚合点估计层面的描述性支持；不能去掉“点估计表明”或添加统计显著、普遍有效、正式保证等措辞。当前批次尚不能扩写为在保持总体覆盖的同时改善。"
+    literature_refs: ["R001", "R002", "R003", "R004", "R005", "R006"]
+    provisional_wording: "最新七市场聚合点估计表明，VICQR缓解平均高波动欠覆盖，并改善综合区间质量。"
+    closure_requirements:
+      - "以可复核原始数据确认高波动coverage gap向名义水平移动。"
+      - "补齐Winkler和覆盖变化的配对统计推断及置信区间。"
+
+  - id: C15
+    category: "volatility_state_mechanism"
+    text: "正确的波动状态信息是VICQR收益的重要来源；状态置乱会使主要高波动收益基本消失，将动作施加到错误状态还会产生低中波动市场级风险。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/safety_mechanism_audit.csv"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/decision_protocol.json"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/artifact_hash_manifest.json"
+    figure_or_table: ["Fig6", "Tab3"]
+    status: "draft"
+    evidence_batch: "legacy_complete_local_control_batch"
+    current_evidence:
+      - "state_permutation的高波动平均Winkler差变为-0.00133和+0.00232，明显弱于完整VICQR的-0.05903和-0.06880。"
+      - "wrong_state在低中波动状态的最差市场Winkler差为+0.03612和+0.07885。"
+    risk: "这是旧完整批次的控制实验，只能作为当前初稿的辅助机制证据；最终定量消融应与最新主结果使用一致批次。不得扩写为波动状态是唯一有效机制。"
+
+  - id: C16
+    category: "evidence_fusion_mechanism"
+    text: "跨市场证据与严格因果本地反馈需要联合使用；仅使用任一路径都会出现至少一个主要区间水平或市场上的稳健性失败。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v5_development/source_prior_summary.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/action_diagnostics.csv"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/safety_mechanism_audit.csv"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/decision_protocol.json"
+    figure_or_table: ["Fig6", "Tab3"]
+    status: "draft"
+    evidence_batch: "legacy_complete_local_control_batch"
+    current_evidence:
+      - "source_only的最差市场高波动Winkler差为+0.18382和+0.05353。"
+      - "local_only的最差市场高波动Winkler差为+0.00231和+0.00376。"
+      - "完整hierarchical路径的最差市场差为-0.02580和-0.01693。"
+    risk: "这些控制来自旧完整批次，最终定量消融应与最新主结果对齐。source_only在alpha=0.4的平均Winkler点估计优于完整模型，因此只能强调市场级失败和联合稳健性，不能声称完整融合在每个平均指标上都最优。"
+
+  - id: C17
+    category: "risk_gate_mechanism"
+    text: "风险门控牺牲部分无约束平均收益，以降低最差市场风险并避免接近全量激活的过度校准。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/safety_mechanism_audit.csv"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/decision_protocol.json"
+      - "paper_outputs/results_tables/vicqr_v5_development/validation_diagnostic_summary.csv"
+    figure_or_table: ["Fig7", "Tab3"]
+    status: "draft"
+    evidence_batch: "legacy_complete_local_control_batch"
+    current_evidence:
+      - "no_risk_gate的动作率约为98.68%和98.65%，完整模型约为15.53%和22.58%。"
+      - "no_risk_gate在alpha=0.2的最差市场Winkler差为+0.09085；完整模型在两个alpha上的最差市场差均为负。"
+      - "no_risk_gate的平均Winkler点估计更低，体现了平均收益与市场级安全性的真实权衡。"
+    risk: "该控制来自旧完整批次，最终定量消融应与最新主结果对齐。不得把风险门控写成无代价地提高所有指标；其贡献是显式稳健性权衡。"
+
+  - id: C18
+    category: "causal_integrity"
+    text: "VICQR的开发协议保留了源市场排除、因果截止、结构完整性和旧测试集未触碰等审计记录；最新聚合结果属于约束恢复，不能表述为已由原始端到端运行重新复现。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v5_development/protocol.json"
+      - "paper_outputs/results_tables/vicqr_v5_development/validation_gate_audit.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/baseline_integrity_hashes.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/artifact_hash_manifest.json"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/source_artifact_hashes.csv"
+    figure_or_table: ["Fig2", "Tab1"]
+    status: "draft"
+    evidence_batch: "protocol_audit_plus_latest_restoration_record"
+    risk: "协议与哈希能够记录因果边界和当前恢复包完整性，但不能把约束恢复等同于原始端到端重现。正文应公开时间划分与信息集，投稿前尽可能补回可复核运行产物。"
+    allowed_wording: "The development protocol enforces causally available information and preserves the locked old test period; the current aggregate point estimates were restored after loss of raw server outputs."
+    prohibited_wording: "The implementation is mathematically guaranteed to be free of every possible form of leakage."
+
+  - id: C19
+    category: "external_supportive_evidence"
+    text: "比利时2024年案例在两个主要区间水平上获得方向一致的高波动Winkler点估计和区间收窄，但样本量不足且block-bootstrap区间跨越零，只能作为外部支持性证据。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v6_belgium_confirmation/high_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v6_belgium_confirmation/overall_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v6_belgium_confirmation/winkler_block_bootstrap.csv"
+      - "paper_outputs/results_tables/vicqr_v6_belgium_confirmation/confirmation_gate_audit.csv"
+      - "paper_outputs/results_tables/vicqr_v6_belgium_confirmation/confirmation_protocol.json"
+      - "paper_outputs/results_tables/vicqr_v6_belgium_confirmation/artifact_hash_manifest.json"
+    figure_or_table: ["Tab4"]
+    status: "supported"
+    current_evidence:
+      - "48个高波动日，低于预设80日门槛。"
+      - "高波动Winkler差为-0.18394和-0.36798，宽度比分别为0.98985和0.98454。"
+      - "两组97.5% block-bootstrap区间均跨越零。"
+    risk: "不得使用validate、confirm、significant或strong external validation。"
+    allowed_wording: "The Belgium case provides directionally consistent but sample-limited supportive evidence."
+
+  - id: C20
+    category: "statistical_significance_pending"
+    text: "VICQR在七个开发市场上的高波动Winkler改善具有统计显著性。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v5_development/protocol.json"
+      - "paper_outputs/results_tables/vicqr_v5_development/recovered_effect_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/validation_gate_audit.csv"
+    figure_or_table: []
+    status: "gap"
+    gap_reason: "当前文件只恢复了截图中的p<0.05汇总结论，原始bootstrap重采样分布、置信区间和逐次统计记录不可用，不能将显著性视为已复核证据。"
+    literature_refs: ["R001", "R002", "R006"]
+    required_tests:
+      - "基于日期或时间块的配对bootstrap，或经论证适用的Diebold–Mariano检验。"
+      - "报告效应量、置信区间和检验假设。"
+
+  - id: C21
+    category: "conditional_coverage_guarantee_pending"
+    text: "VICQR具有普遍或正式的条件覆盖保证。"
+    evidence_artifacts: []
+    figure_or_table: []
+    status: "gap"
+    gap_reason: "当前没有相应定理、假设和证明，外部市场证据也不足以建立普遍经验结论。"
+    literature_refs: ["R005"]
+    prohibited_wording: "VICQR guarantees universal conditional coverage."
+    allowed_wording: "VICQR shows conditional interval-quality improvements within the evaluated settings, subject to current evidence."
+
+  - id: C22
+    category: "strong_baseline_comparison_pending"
+    text: "VICQR在相同冻结评估框架下全面优于OCQR以外的近期强基线。"
+    evidence_artifacts: []
+    figure_or_table: []
+    status: "gap"
+    gap_reason: "当前VICQR v5主结果产物主要记录与OCQR的直接比较，尚未形成包含近期强基线、完全相同日期和状态定义的冻结主结果表。"
+    required_work:
+      - "锁定主文强基线集合。"
+      - "在相同测试日期、波动状态、alpha和评价指标下统一评估。"
+      - "记录运行配置、结果文件和公平性审计。"
+
+  - id: C23
+    category: "effect_size_misinterpretation"
+    text: "平均高波动Winkler差-0.0590和-0.0688等同于5.90%和6.88%的相对改善。"
+    evidence_artifacts:
+      - "paper_outputs/results_tables/vicqr_v5_development/high_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/validation_gate_audit.csv"
+    figure_or_table: []
+    status: "rejected"
+    rejection_reason: "-0.0590和-0.0688属于旧完整批次的Winkler绝对差，对应描述性相对降幅约0.221%和0.344%；最新恢复聚合主结果为绝对差-0.5300和-0.4159，对应相对改善约2.13%和2.08%。任何一组都不是5.90%和6.88%。"
+    prohibited_wording: "VICQR reduces Winkler by 5.90% and 6.88%."

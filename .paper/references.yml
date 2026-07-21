@@ -1,0 +1,320 @@
+schema_version: "1.1"
+status: "author_confirmed"
+last_verified: "2026-07-20"
+purpose: "记录VICQR论文中可复用的文献证据、原始网址、可支持主张及使用边界。"
+
+usage_rules:
+  - "正文使用文献前必须核对supports与does_not_support，不得仅凭标题扩展结论。"
+  - "优先使用doi_url或publisher_url指向的一手来源；综述不得替代可获得的原始论文。"
+  - "新发现且完成核验的文献应先写入本文件，再进入论文正文、claims.yml或蓝图。"
+  - "新增文献若改变研究问题、模型定义、贡献、证据状态或结论强度，仍须先获得作者确认。"
+  - "只有manuscript_approval.status为author_approved的文献可以进入论文正文；verified只表示元数据和支持边界已核验，不等于作者已批准使用。"
+  - "蓝图使用BP-LIT-xx稳定陈述编号，references中的blueprint_links负责反向映射；Rxxx是内部文献ID，不得直接作为最终稿的参考文献编号。"
+
+references:
+  - id: "R001"
+    citation_key: "Brusaferri2025OCQR"
+    citation: "A. Brusaferri, A. Ballarino, L. Grossi, and F. Laurini, “On-line conformalized neural networks ensembles for probabilistic forecasting of day-ahead electricity prices,” Applied Energy, vol. 398, 126412, 2025."
+    title: "On-line conformalized neural networks ensembles for probabilistic forecasting of day-ahead electricity prices"
+    authors:
+      - "Alessandro Brusaferri"
+      - "Andrea Ballarino"
+      - "Luigi Grossi"
+      - "Fabrizio Laurini"
+    year: 2025
+    venue: "Applied Energy"
+    source_type:
+      - "direct_baseline"
+      - "domain_application"
+    supports:
+      - "OCQR的直接方法来源和VICQR的主要直接比较基准。"
+      - "电价概率预测中使用Kupiec覆盖检验、Winkler区间分数和Diebold–Mariano检验的当前领域实践。"
+      - "在线共形校准可改善小时覆盖可靠性并保持稳定概率预测分数。"
+    does_not_support:
+      - "不能直接证明OCQR在VICQR定义的高波动状态下必然欠覆盖。"
+      - "不能直接证明VICQR的机制有效或性能优于OCQR。"
+    manuscript_sections:
+      - "Introduction"
+      - "Problem diagnosis"
+      - "Experimental protocol"
+      - "Related work embedded in Introduction"
+    doi: "10.1016/j.apenergy.2025.126412"
+    doi_url: "https://doi.org/10.1016/j.apenergy.2025.126412"
+    publisher_url: "https://www.sciencedirect.com/science/article/pii/S0306261925011420"
+    code_url: "https://github.com/bruale/PefCodeBench"
+    verification:
+      status: "verified"
+      date: "2026-07-20"
+      basis:
+        - "Elsevier/ScienceDirect论文页面"
+        - "项目根目录中的论文PDF"
+    manuscript_approval:
+      status: "author_approved"
+      date: "2026-07-20"
+      scope: "仅限supports所列主张及对应蓝图锚点。"
+    blueprint_links:
+      - statement_id: "BP-LIT-02"
+        support_level: "background_support"
+      - statement_id: "BP-LIT-03"
+        support_level: "strong_support"
+      - statement_id: "BP-LIT-05"
+        support_level: "partial_support"
+
+  - id: "R002"
+    citation_key: "Retzlaff2025CoverageTests"
+    citation: "K. Retzlaff, F. Schlembach, D. Bams, and P. Dreesen, “Testing Marginal and Conditional Coverage in Conformal Prediction for Non-Stationary Time Series via Value-at-Risk Backtesting,” Proceedings of Machine Learning Research, vol. 266, pp. 725–747, 2025."
+    title: "Testing Marginal and Conditional Coverage in Conformal Prediction for Non-Stationary Time Series via Value-at-Risk Backtesting"
+    authors:
+      - "Konrad Retzlaff"
+      - "Filip Schlembach"
+      - "Dennis Bams"
+      - "Philippe Dreesen"
+    year: 2025
+    venue: "Proceedings of Machine Learning Research"
+    source_type:
+      - "evaluation_methodology"
+      - "time_series_conformal_prediction"
+    supports:
+      - "仅报告经验覆盖率和平均区间宽度不足以判断偏差是否超过随机波动。"
+      - "非平稳时间序列共形预测应使用正式边际与条件覆盖检验。"
+      - "可结合Diebold–Mariano检验与interval score比较预测区间性能。"
+    does_not_support:
+      - "不能替代日前电价领域的直接应用基准。"
+      - "不能单独确定VICQR高波动状态的业务定义或实质改善阈值。"
+    manuscript_sections:
+      - "Problem diagnosis"
+      - "Evaluation metrics and statistical inference"
+      - "Discussion"
+    doi: null
+    doi_url: null
+    publisher_url: "https://proceedings.mlr.press/v266/retzlaff25a.html"
+    pdf_url: "https://raw.githubusercontent.com/mlresearch/v266/main/assets/retzlaff25a/retzlaff25a.pdf"
+    verification:
+      status: "verified"
+      date: "2026-07-20"
+      basis:
+        - "PMLR正式论文页面及其BibTeX元数据"
+    manuscript_approval:
+      status: "author_approved"
+      date: "2026-07-20"
+      scope: "仅限supports所列主张及对应蓝图锚点。"
+    blueprint_links:
+      - statement_id: "BP-LIT-04"
+        support_level: "strong_support"
+      - statement_id: "BP-LIT-05"
+        support_level: "strong_support"
+      - statement_id: "BP-LIT-06"
+        support_level: "strong_support"
+
+  - id: "R003"
+    citation_key: "Maciejowska2024FactorQRA"
+    citation: "K. Maciejowska, T. Serafin, and B. Uniejewski, “Probabilistic forecasting with a hybrid Factor-QRA approach: Application to electricity trading,” Electric Power Systems Research, vol. 234, 110541, 2024."
+    title: "Probabilistic forecasting with a hybrid Factor-QRA approach: Application to electricity trading"
+    authors:
+      - "Katarzyna Maciejowska"
+      - "Tomasz Serafin"
+      - "Bartosz Uniejewski"
+    year: 2024
+    venue: "Electric Power Systems Research"
+    source_type:
+      - "domain_application"
+      - "conditional_coverage_evaluation"
+    supports:
+      - "电价概率预测中可联合使用经验覆盖率和Christoffersen条件覆盖检验评价可靠性。"
+      - "概率预测的统计改善可以进一步连接到储能交易等经济价值。"
+    does_not_support:
+      - "不能证明VICQR已经获得普遍条件覆盖保证。"
+      - "不能直接证明VICQR的高波动条件机制。"
+    manuscript_sections:
+      - "Introduction"
+      - "Evaluation metrics and statistical inference"
+      - "Discussion"
+    doi: "10.1016/j.epsr.2024.110541"
+    doi_url: "https://doi.org/10.1016/j.epsr.2024.110541"
+    publisher_url: "https://www.sciencedirect.com/science/article/pii/S0378779624004279"
+    verification:
+      status: "verified"
+      date: "2026-07-20"
+      basis:
+        - "Elsevier/ScienceDirect论文页面"
+    manuscript_approval:
+      status: "author_approved"
+      date: "2026-07-20"
+      scope: "仅限supports所列主张及对应蓝图锚点。"
+    blueprint_links:
+      - statement_id: "BP-LIT-01"
+        support_level: "partial_support"
+      - statement_id: "BP-LIT-05"
+        support_level: "partial_support"
+
+  - id: "R004"
+    citation_key: "OConnor2025ElectricityCP"
+    citation: "C. O’Connor, M. Bahloul, R. Rossi, S. Prestwich, and A. Visentin, “Conformal Prediction for electricity price forecasting in the day-ahead and real-time balancing market,” Energy and AI, vol. 21, 100571, 2025."
+    title: "Conformal Prediction for electricity price forecasting in the day-ahead and real-time balancing market"
+    authors:
+      - "Ciaran O’Connor"
+      - "Mohamed Bahloul"
+      - "Roberto Rossi"
+      - "Steven Prestwich"
+      - "Andrea Visentin"
+    year: 2025
+    venue: "Energy and AI"
+    source_type:
+      - "domain_application"
+      - "conformal_electricity_price_forecasting"
+    supports:
+      - "覆盖率、区间宽度和Winkler分数可用于联合评价电价预测区间的可靠性与效率。"
+      - "在维持覆盖表现的同时获得更窄区间具有概率预测价值。"
+      - "可靠预测区间可支持日前和实时平衡市场中的储能套利分析。"
+    does_not_support:
+      - "不能替代对VICQR中心问题的正式条件覆盖检验。"
+      - "不能直接支持VICQR跨市场证据融合或风险门控机制。"
+    manuscript_sections:
+      - "Introduction"
+      - "Evaluation metrics"
+      - "Discussion"
+    doi: "10.1016/j.egyai.2025.100571"
+    doi_url: "https://doi.org/10.1016/j.egyai.2025.100571"
+    publisher_url: "https://www.sciencedirect.com/science/article/pii/S266654682500103X"
+    verification:
+      status: "verified"
+      date: "2026-07-20"
+      basis:
+        - "Elsevier/ScienceDirect论文页面"
+    manuscript_approval:
+      status: "author_approved"
+      date: "2026-07-20"
+      scope: "仅限supports所列主张及对应蓝图锚点。"
+    blueprint_links:
+      - statement_id: "BP-LIT-01"
+        support_level: "background_support"
+      - statement_id: "BP-LIT-02"
+        support_level: "background_support"
+      - statement_id: "BP-LIT-06"
+        support_level: "strong_support"
+
+  - id: "R005"
+    citation_key: "Gibbs2025ConditionalGuarantees"
+    citation: "I. Gibbs, J. J. Cherian, and E. J. Candès, “Conformal prediction with conditional guarantees,” Journal of the Royal Statistical Society Series B: Statistical Methodology, vol. 87, no. 4, pp. 1100–1126, 2025."
+    title: "Conformal prediction with conditional guarantees"
+    authors:
+      - "Isaac Gibbs"
+      - "John J. Cherian"
+      - "Emmanuel J. Candès"
+    year: 2025
+    venue: "Journal of the Royal Statistical Society Series B: Statistical Methodology"
+    source_type:
+      - "conditional_coverage_theory"
+      - "conformal_prediction"
+    supports:
+      - "边际覆盖不等同于对所有协变量状态的条件覆盖。"
+      - "有限样本下普遍、精确且无分布假设的条件覆盖通常不可同时获得。"
+      - "预先指定子群上的覆盖是边际有效性与完全条件有效性之间的重要中间目标。"
+    does_not_support:
+      - "不能在没有相应定理和假设的情况下声称VICQR具有正式条件覆盖保证。"
+      - "不能直接证明高波动状态下的经验改善。"
+    manuscript_sections:
+      - "Introduction"
+      - "Problem formulation"
+      - "Discussion and limitations"
+    doi: "10.1093/jrsssb/qkaf008"
+    doi_url: "https://doi.org/10.1093/jrsssb/qkaf008"
+    publisher_url: "https://academic.oup.com/jrsssb/article/87/4/1100/8058684"
+    verification:
+      status: "verified"
+      date: "2026-07-20"
+      basis:
+        - "Oxford Academic正式论文页面"
+    manuscript_approval:
+      status: "author_approved"
+      date: "2026-07-20"
+      scope: "仅限supports所列主张及对应蓝图锚点。"
+    blueprint_links:
+      - statement_id: "BP-LIT-04"
+        support_level: "strong_support"
+      - statement_id: "BP-LIT-05"
+        support_level: "strong_support"
+
+  - id: "R006"
+    citation_key: "Gneiting2007ProperScoringRules"
+    citation: "T. Gneiting and A. E. Raftery, “Strictly Proper Scoring Rules, Prediction, and Estimation,” Journal of the American Statistical Association, vol. 102, no. 477, pp. 359–378, 2007."
+    title: "Strictly Proper Scoring Rules, Prediction, and Estimation"
+    authors:
+      - "Tilmann Gneiting"
+      - "Adrian E. Raftery"
+    year: 2007
+    venue: "Journal of the American Statistical Association"
+    source_type:
+      - "proper_scoring_rule_theory"
+      - "foundational_reference"
+    supports:
+      - "proper scoring rule用于诚实且一致地评价概率预测。"
+      - "interval score同时评价预测区间宽度和区间外观测惩罚。"
+      - "Winkler/interval score可作为覆盖可靠性与区间锐度的综合评价依据。"
+    does_not_support:
+      - "不能单独证明VICQR优于OCQR。"
+      - "不能替代时间序列相关性下的统计推断。"
+    manuscript_sections:
+      - "Evaluation metrics"
+      - "Method objective"
+    doi: "10.1198/016214506000001437"
+    doi_url: "https://doi.org/10.1198/016214506000001437"
+    publisher_url: "https://www.tandfonline.com/doi/abs/10.1198/016214506000001437"
+    verification:
+      status: "verified"
+      date: "2026-07-20"
+      basis:
+        - "JASA/Taylor & Francis DOI元数据"
+    manuscript_approval:
+      status: "author_approved"
+      date: "2026-07-20"
+      scope: "仅限supports所列主张及对应蓝图锚点。"
+    blueprint_links:
+      - statement_id: "BP-LIT-06"
+        support_level: "strong_support"
+      - statement_id: "BP-LIT-07"
+        support_level: "strong_support"
+
+  - id: "R007"
+    citation_key: "Lipiecki2024Postprocessing"
+    citation: "A. Lipiecki, B. Uniejewski, and R. Weron, “Postprocessing of point predictions for probabilistic forecasting of day-ahead electricity prices: The benefits of using isotonic distributional regression,” Energy Economics, vol. 139, 107934, 2024."
+    title: "Postprocessing of point predictions for probabilistic forecasting of day-ahead electricity prices: The benefits of using isotonic distributional regression"
+    authors:
+      - "Arkadiusz Lipiecki"
+      - "Bartosz Uniejewski"
+      - "Rafał Weron"
+    year: 2024
+    venue: "Energy Economics"
+    source_type:
+      - "domain_application"
+      - "probabilistic_postprocessing"
+    supports:
+      - "后处理方法可以将日前电价点预测转换为概率预测分布。"
+      - "电价预测分布能够支持运行决策，并可能产生高于仅使用点预测的经济收益。"
+      - "分位数回归平均、共形预测和等距分布回归是日前电价概率后处理的可比较路径。"
+    does_not_support:
+      - "不能直接证明OCQR在高波动条件下存在欠覆盖。"
+      - "不能直接证明VICQR优于OCQR或其他概率后处理方法。"
+      - "不能支持VICQR具有正式条件覆盖保证。"
+    manuscript_sections:
+      - "Introduction"
+      - "Related work embedded in Introduction"
+      - "Discussion"
+    doi: "10.1016/j.eneco.2024.107934"
+    doi_url: "https://doi.org/10.1016/j.eneco.2024.107934"
+    publisher_url: "https://www.sciencedirect.com/science/article/pii/S014098832400642X"
+    preprint_url: "https://arxiv.org/abs/2404.02270"
+    verification:
+      status: "verified"
+      date: "2026-07-20"
+      basis:
+        - "Elsevier/ScienceDirect正式论文页面、摘要及DOI元数据"
+    manuscript_approval:
+      status: "author_approved"
+      date: "2026-07-20"
+      scope: "此前已写入作者确认蓝图；仅限supports所列主张及对应蓝图锚点。"
+    blueprint_links:
+      - statement_id: "BP-LIT-01"
+        support_level: "background_support"
+      - statement_id: "BP-LIT-02"
+        support_level: "partial_support"
