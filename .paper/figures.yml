@@ -1,0 +1,134 @@
+schema_version: "2.0"
+paper_method: "VICQR"
+updated: "2026-07-21"
+source_blueprint: ".paper/blueprint.md v1.4"
+status: "consistency_aligned_current_figure_plan"
+
+evidence_policy:
+  - "本文件只保留VICQR主文规划图；旧VA-OCQR图已从当前映射移除。"
+  - "最新恢复聚合点估计可用于初稿图形和表格设计，不得从约束重建的市场—小时数值生成新的细粒度统计结论。"
+  - "Fig6和Fig7的控制结果来自旧本地完整批次，投稿级定量图应在与最新主结果对齐后锁定。"
+  - "当前overall_metrics.csv未与最新恢复主结果同步，现阶段图表不得声称VICQR在当前批次保持总体覆盖。"
+  - "所有file路径均为计划输出路径；status为planned或alignment_pending时，文件可能尚未渲染。"
+
+figures:
+  - id: "Fig1"
+    file: "paper_outputs/figures/vicqr/Fig1_high_volatility_problem_diagnosis.png"
+    status: "planned_from_aggregate_with_tail_panel_pending_alignment"
+    panels:
+      - "(a) OCQR aggregate high-volatility coverage gaps at 80% and 60% interval levels"
+      - "(b) Deviation from the two nominal coverage levels"
+      - "(c) Tail-risk or market heterogeneity after consistent-batch evidence alignment"
+    key_numbers:
+      - "OCQR high-volatility coverage: 75.09% at the 80% interval level and 55.30% at the 60% level"
+      - "OCQR coverage gaps: -4.91 and -4.70 percentage points"
+    source_tables:
+      - "paper_outputs/results_tables/vicqr_v5_development/high_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/dd/tail_balance_metrics.csv"
+    supports_claims: ["C9", "C10"]
+    evidence_boundary: "This is a problem-diagnosis figure and must not contain VICQR effects. Panels a-b use latest restored OCQR aggregate point estimates; panel c must not report old exact tail numbers as if they belonged to the latest batch."
+    caption_in_manuscript: "Diagnosis of OCQR high-volatility undercoverage at the two primary prediction-interval levels, with auxiliary conditional-risk evidence subject to batch alignment."
+
+  - id: "Fig2"
+    file: "paper_outputs/figures/vicqr/Fig2_vicqr_multilayer_architecture.png"
+    status: "planned"
+    panels:
+      - "(a) Research-derived online marginal-calibration principle"
+      - "(b) Causal volatility-state layer and candidate action space"
+      - "(c) Leave-one-market and local-history evidence paths"
+      - "(d) Risk gate, no-action branch, interval output, and online feedback loop"
+    key_numbers: []
+    source_tables:
+      - "paper_outputs/results_tables/vicqr_v5_development/protocol.json"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/decision_protocol.json"
+    supports_claims: ["C11", "C18"]
+    evidence_boundary: "The diagram must depict the complete VICQR model, not an OCQR-output-plus-plugin pipeline, and must not introduce modules absent from the locked model definition."
+    caption_in_manuscript: "Multilayer and multibranch architecture of the proposed VICQR online interval-calibration model."
+
+  - id: "Fig3"
+    file: "paper_outputs/figures/vicqr/Fig3_signed_quantile_reallocation.png"
+    status: "planned"
+    panels:
+      - "(a) Upper-tail and lower-tail risk transfer"
+      - "(b) Contraction and expansion actions"
+      - "(c) No-action safety option"
+      - "(d) Proper-score-based candidate comparison"
+    key_numbers: []
+    source_tables:
+      - "paper_outputs/results_tables/vicqr_v5_development/action_diagnostics.csv"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/decision_protocol.json"
+    supports_claims: ["C11"]
+    evidence_boundary: "This is a mechanism diagram; old action frequencies must not be presented as latest-batch performance."
+    caption_in_manuscript: "Signed conditional quantile-reallocation actions and their risk-aware evaluation in VICQR."
+
+  - id: "Fig4"
+    file: "paper_outputs/figures/vicqr/Fig4_main_aggregate_effects.png"
+    status: "planned_from_latest_restored_aggregate"
+    panels:
+      - "(a) Coverage before and after VICQR"
+      - "(b) Mean high-volatility Winkler change"
+      - "(c) Relative Winkler improvement"
+      - "(d) Mean interval-width reduction"
+    key_numbers:
+      - "80% level: coverage 75.09% to 79.41%; Winkler delta -0.5300; relative improvement 2.13%; width reduction 1.86%"
+      - "60% level: coverage 55.30% to 59.77%; Winkler delta -0.4159; relative improvement 2.08%; width reduction 2.13%"
+    source_tables:
+      - "paper_outputs/results_tables/vicqr_v5_development/high_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/recovered_effect_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/validation_gate_audit.csv"
+    supports_claims: ["C12", "C13", "C14"]
+    evidence_boundary: "Use point estimates without significance marks or confidence intervals until the raw paired bootstrap evidence is recovered or regenerated."
+    caption_in_manuscript: "Aggregate high-volatility coverage recovery, interval-score improvement, and width reduction achieved by VICQR across seven markets."
+
+  - id: "Fig5"
+    file: "paper_outputs/figures/vicqr/Fig5_cross_market_direction_consistency.png"
+    status: "planned_direction_count_only_pending_granular_verification"
+    panels:
+      - "(a) Improved-market count at the 80% interval level"
+      - "(b) Improved-market count at the 60% interval level"
+      - "(c) Per-market effect sizes after granular evidence alignment"
+    key_numbers:
+      - "7/7 markets show negative high-volatility Winkler change at the 80% interval level"
+      - "7/7 markets show negative high-volatility Winkler change at the 60% interval level"
+    source_tables:
+      - "paper_outputs/results_tables/vicqr_v5_development/high_metrics.csv"
+      - "paper_outputs/results_tables/vicqr_v5_development/recovered_effect_metrics.csv"
+    supports_claims: ["C12", "C14"]
+    evidence_boundary: "The draft may show the recovered 7/7 direction count. Individual reconstructed market effect sizes must not be treated as independently verified raw results."
+    caption_in_manuscript: "Cross-market direction consistency of the high-volatility Winkler improvement at the two primary interval levels."
+
+  - id: "Fig6"
+    file: "paper_outputs/figures/vicqr/Fig6_mechanism_ablation_and_controls.png"
+    status: "alignment_pending_prior_complete_control_batch"
+    panels:
+      - "(a) Full VICQR versus state permutation"
+      - "(b) Correct-state versus wrong-state application"
+      - "(c) Full evidence fusion versus source-only"
+      - "(d) Full evidence fusion versus local-only"
+    key_numbers:
+      - "Prior complete batch: state-permutation mean Winkler deltas -0.00133 and +0.00232"
+      - "Prior complete batch: worst wrong-state low/mid-volatility deltas +0.03612 and +0.07885"
+    source_tables:
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/safety_mechanism_audit.csv"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/decision_protocol.json"
+    supports_claims: ["C15", "C16"]
+    evidence_boundary: "These controls are supportive evidence from the prior complete batch; exact final values require alignment with the main-result batch."
+    caption_in_manuscript: "Mechanism ablations and alternative-explanation controls for volatility-state information and cross-market–local evidence fusion."
+
+  - id: "Fig7"
+    file: "paper_outputs/figures/vicqr/Fig7_risk_gate_tradeoff.png"
+    status: "alignment_pending_prior_complete_control_batch"
+    panels:
+      - "(a) Mean Winkler change"
+      - "(b) Worst-market Winkler change"
+      - "(c) Action rate"
+    key_numbers:
+      - "Prior complete batch: no-risk-gate action rates 98.68% and 98.65%"
+      - "Prior complete batch: full VICQR action rates 15.53% and 22.58%"
+      - "Prior complete batch: no-risk-gate worst-market delta +0.09085 at alpha=0.2"
+    source_tables:
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/safety_mechanism_audit.csv"
+      - "paper_outputs/results_tables/vicqr_v6_development_decision/decision_protocol.json"
+    supports_claims: ["C17"]
+    evidence_boundary: "The figure must present risk gating as a robustness tradeoff, not as a cost-free improvement in every metric."
+    caption_in_manuscript: "Tradeoff between average interval-score gains, worst-market risk, and action frequency induced by VICQR risk gating."

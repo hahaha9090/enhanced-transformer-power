@@ -45,7 +45,7 @@ nature-skills 是执行工具，不是研究事实来源。任何 skill 生成�
 
 ### 3.1 最新恢复聚合结果的快速成稿规则
 
-当前七市场主结果使用 `vicqr_v5_development/recovered_effect_metrics.csv`、`high_metrics.csv`、`validation_gate_audit.csv` 和 `protocol.json` 中相互一致的恢复聚合指标。为了在服务器原始明细暂不可用时继续推进论文，写作可以使用蓝图 v1.3 已确认的覆盖率、coverage recovery、Winkler 差值、相对改善率、宽度降幅和 7/7 方向一致性作为初稿点估计。
+当前七市场主结果使用 `vicqr_v5_development/recovered_effect_metrics.csv`、`high_metrics.csv`、`validation_gate_audit.csv` 和 `protocol.json` 中相互一致的恢复聚合指标。为了在服务器原始明细暂不可用时继续推进论文，写作可以使用蓝图 v1.4 已确认的覆盖率、coverage recovery、Winkler 差值、相对改善率、宽度降幅和 7/7 方向一致性作为初稿点估计。
 
 使用这些结果时必须遵守：
 
